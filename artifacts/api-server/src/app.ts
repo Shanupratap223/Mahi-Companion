@@ -23,3 +23,10 @@ app.get("/api", (req: Request, res: Response) => {
 });
 
 export default app;
+app.post("/chat", async (req: Request, res: Response) => {
+  const { message } = req.body;
+
+  res.json({
+    reply: "Tumne bola: " + message,
+  });
+});
