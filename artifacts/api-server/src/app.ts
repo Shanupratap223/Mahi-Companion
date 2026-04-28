@@ -1,34 +1,29 @@
-import express, { type Express } from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
-import router from "./routes";
-import { logger } from "./lib/logger";
 
-const app: Express = express();
+const app = express();
 
-app.use(
-  pinoHttp({
-    logger,
-    serializers: {
-      req(req) {
-        return {
-          id: req.id,
-          method: req.method,
-          url: req.url?.split("?")[0],
-        };
-      },
-      res(res) {
-        return {
-          statusCode: res.statusCode,
-        };
-      },
-    },
-  }),
-);
+// Simple logger
+app.use(pinoHttp());
+
+// Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api", router);
+// Test route
+app.get("/", (req: Request, res: Response) => {
+  res.json({
+    message: "Server is running 🚀",
+  });
+});
+
+// API route
+app.get("/api", (req: Request, res: Response) => {
+  res.json({
+    success: true,
+  });
+});
 
 export default app;
