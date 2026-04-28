@@ -15,7 +15,6 @@ app.get("/", (req: Request, res: Response) => {
 app.post("/chat", async (req: Request, res: Response) => {
   try {
     const message = req.body.message || "";
-
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
@@ -23,7 +22,7 @@ app.post("/chat", async (req: Request, res: Response) => {
     }
 
     const response = await fetch(
-  `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: {
@@ -47,7 +46,7 @@ app.post("/chat", async (req: Request, res: Response) => {
 
     res.json({ reply });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.json({ reply: "Error aaya bhai 😢" });
   }
 });
