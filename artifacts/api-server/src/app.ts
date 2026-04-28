@@ -3,13 +3,16 @@ import cors from "cors";
 
 const app = express();
 
+// Middlewares
 app.use(cors());
 app.use(express.json());
 
+// Test route
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "MAHI AI is running 🚀" });
 });
 
+// Chat route
 app.post("/chat", async (req: Request, res: Response) => {
   try {
     const message = req.body.message || "";
