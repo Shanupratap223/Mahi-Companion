@@ -24,7 +24,7 @@ app.get("/api", (req: Request, res: Response) => {
 
 // Chat route
 app.post("/chat", async (req: Request, res: Response) => {
-  const { message } = req.body;
+  const message = req.body?.message || "";
 
   res.json({
     reply: "Tumne bola: " + message,
