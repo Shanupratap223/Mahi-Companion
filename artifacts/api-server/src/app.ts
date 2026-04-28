@@ -1,11 +1,7 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
-import pinoHttp from "pino-http";
 
 const app = express();
-
-// Simple logger
-app.use(pinoHttp());
 
 // Middlewares
 app.use(cors());
