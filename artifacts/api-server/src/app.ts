@@ -3,7 +3,6 @@ import cors from "cors";
 
 const app = express();
 
-// Middlewares
 app.use(cors());
 app.use(express.json());
 
@@ -17,8 +16,14 @@ app.post("/chat", async (req: Request, res: Response) => {
   try {
     const message = req.body.message || "";
 
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+      return res.json({ reply: "API key missing ❌" });
+    }
+
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: {
@@ -42,6 +47,7 @@ app.post("/chat", async (req: Request, res: Response) => {
 
     res.json({ reply });
   } catch (error) {
+    console.log(error);
     res.json({ reply: "Error aaya bhai 😢" });
   }
 });
