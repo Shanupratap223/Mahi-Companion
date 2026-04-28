@@ -22,7 +22,7 @@ app.get("/api", (req: Request, res: Response) => {
   });
 });
 
-export default app;
+// Chat route
 app.post("/chat", async (req: Request, res: Response) => {
   const { message } = req.body;
 
@@ -30,3 +30,5 @@ app.post("/chat", async (req: Request, res: Response) => {
     reply: "Tumne bola: " + message,
   });
 });
+
+export default app;
