@@ -121,17 +121,20 @@ export function Home({ onSignOut }: Props) {
     transcriptRef.current = [];
     setTranscript([]);
 
-    const memory = getMemory();
-    const memorySummary = memory
-      .slice(-5)
-      .map((m) => m.summary)
-      .join("\n---\n");
-
+    // Create + unlock the audio player synchronously inside the user click
+    // so iOS/Safari permits playback for the rest of the session.
     const player = new AudioPlayer({
       onPlaybackStart: () => setState("speaking"),
       onPlaybackEnd: () => setState((s) => (s === "speaking" ? "listening" : s)),
     });
     playerRef.current = player;
+    void player.unlock();
+
+    const memory = getMemory();
+    const memorySummary = memory
+      .slice(-5)
+      .map((m) => m.summary)
+      .join("\n---\n");
 
     const session = new LiveSession(apiKey, {
       onAudio: (b64) => {

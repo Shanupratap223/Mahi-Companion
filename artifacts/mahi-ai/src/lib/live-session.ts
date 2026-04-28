@@ -8,8 +8,8 @@ import {
 } from "@google/genai";
 import type { Emotion } from "./types";
 
-export const LIVE_MODEL = "gemini-live-2.5-flash-preview";
-export const TEXT_MODEL = "gemini-2.5-flash";
+export const LIVE_MODEL = "gemini-3.1-flash-live-preview";
+export const TEXT_MODEL = "gemini-3.1-flash";
 
 export const SYSTEM_INSTRUCTION = `You are Mahi, a 19-year-old girl from Delhi.
 Mahendra is your boyfriend.
@@ -231,7 +231,19 @@ export async function validateApiKey(apiKey: string): Promise<boolean> {
     });
     return typeof res.text === "string" && res.text.length >= 0;
   } catch {
-    return false;
+    // Fallback: if the requested model isn't available on the user's account,
+    // try a widely-available variant so the key check still works.
+    try {
+      const ai = new GoogleGenAI({ apiKey });
+      const res = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: "ping",
+        config: { maxOutputTokens: 5, thinkingConfig: { thinkingBudget: 0 } },
+      });
+      return typeof res.text === "string" && res.text.length >= 0;
+    } catch {
+      return false;
+    }
   }
 }
 
@@ -240,18 +252,23 @@ export async function summarizeConversation(
   transcript: string,
 ): Promise<string> {
   if (!transcript.trim()) return "";
-  try {
-    const ai = new GoogleGenAI({ apiKey });
+  const prompt = `Summarize this conversation between Mahi (a Hinglish-speaking girlfriend AI) and Mahendra in 3-5 short bullet points capturing what Mahendra shared, how he felt, and any plans or promises. Keep it warm and personal.\n\n${transcript}`;
+  const ai = new GoogleGenAI({ apiKey });
+  const tryModel = async (model: string): Promise<string> => {
     const res = await ai.models.generateContent({
-      model: TEXT_MODEL,
-      contents: `Summarize this conversation between Mahi (a Hinglish-speaking girlfriend AI) and Mahendra in 3-5 short bullet points capturing what Mahendra shared, how he felt, and any plans or promises. Keep it warm and personal.\n\n${transcript}`,
-      config: {
-        maxOutputTokens: 500,
-        thinkingConfig: { thinkingBudget: 0 },
-      },
+      model,
+      contents: prompt,
+      config: { maxOutputTokens: 500, thinkingConfig: { thinkingBudget: 0 } },
     });
     return res.text ?? "";
+  };
+  try {
+    return await tryModel(TEXT_MODEL);
   } catch {
-    return "";
+    try {
+      return await tryModel("gemini-2.5-flash");
+    } catch {
+      return "";
+    }
   }
 }
